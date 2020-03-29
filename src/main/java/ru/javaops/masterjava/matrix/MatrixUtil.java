@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ForkJoinPool;
+import java.util.stream.IntStream;
 
 /**
  * gkislin
@@ -17,42 +20,36 @@ public class MatrixUtil {
     private MatrixUtil() {
     }
 
-    public static int[][] concurrentMultiply(int[][] matrixA, int[][] matrixB, ExecutorService executor) throws InterruptedException {
+    public static int[][] concurrentMultiplyParallelStream(int[][] matrixA, int[][] matrixB, int threadNumbers) throws ExecutionException, InterruptedException {
         final int matrixSize = matrixA.length;
         final int[][] matrixC = new int[matrixSize][matrixSize];
         final int[][] matrixBT = getTMatrix(matrixB, matrixSize);
 
-        List<Callable<Boolean>> result = new ArrayList<>(matrixSize);
+        new ForkJoinPool(threadNumbers).submit(() ->
+                IntStream.range(0, matrixSize)
+                        .parallel()
+                        .forEach(i -> mainLoop(i, matrixA[i], matrixBT, matrixC, matrixSize))).get();
+        return matrixC;
+    }
+
+     public static int[][] concurrentMultiply(int[][] matrixA, int[][] matrixB, ExecutorService executor) throws InterruptedException {
+        final int matrixSize = matrixA.length;
+        final int[][] matrixC = new int[matrixSize][matrixSize];
+        final int[][] matrixBT = getTMatrix(matrixB, matrixSize);
+
+        List<Callable<Void>> result = new ArrayList<>(matrixSize);
 
         for (int i = 0; i < matrixSize; i++) {
-            result.add(new GroupResult(i, matrixSize, matrixA, matrixBT, matrixC));
+            int finalI = i;
+            result.add(() -> {
+                mainLoop(finalI, matrixA[finalI], matrixBT, matrixC, matrixSize);
+                return null;
+            });
         }
 
         executor.invokeAll(result);
 
         return matrixC;
-    }
-
-    public static class GroupResult implements Callable<Boolean> {
-        int i;
-        final int matrixSize;
-        int[][] matrixA;
-        int[][] matrixBT;
-        final int[][] matrixC;
-
-        public GroupResult(int i, int matrixSize, int[][] matrixA, int[][] matrixBT, int[][] matrixC) {
-            this.i = i;
-            this.matrixSize = matrixSize;
-            this.matrixA = matrixA;
-            this.matrixBT = matrixBT;
-            this.matrixC = matrixC;
-        }
-
-        @Override
-        public Boolean call() {
-            mainLoop(i, matrixA[i], matrixBT, matrixC, matrixSize);
-            return true;
-        }
     }
 
     public static int[][] singleThreadMultiply(int[][] matrixA, int[][] matrixB) {

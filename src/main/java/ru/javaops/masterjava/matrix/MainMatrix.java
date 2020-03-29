@@ -20,6 +20,7 @@ public class MainMatrix {
 
         double singleThreadSum = 0.;
         double concurrentThreadSum = 0.;
+        double concurrentParallelStreamSum = 0.;
         int count = 1;
         while (count < 6) {
             System.out.println("Pass " + count);
@@ -35,7 +36,18 @@ public class MainMatrix {
             out("Concurrent thread time, sec: %.3f", duration);
             concurrentThreadSum += duration;
 
+            start = System.currentTimeMillis();
+            final int[][] concurrentParallelStreamsMatrixC = MatrixUtil.concurrentMultiplyParallelStream(matrixA, matrixB, Runtime.getRuntime().availableProcessors());
+            duration = (System.currentTimeMillis() - start) / 1000.;
+            out("Concurrent parallel streams time, sec: %.3f", duration);
+            concurrentParallelStreamSum += duration;
+
             if (!MatrixUtil.compare(matrixC, concurrentMatrixC)) {
+                System.err.println("Comparison failed");
+                break;
+            }
+
+            if (!MatrixUtil.compare(matrixC, concurrentParallelStreamsMatrixC)) {
                 System.err.println("Comparison failed");
                 break;
             }
@@ -44,6 +56,7 @@ public class MainMatrix {
         executor.shutdown();
         out("\nAverage single thread time, sec: %.3f", singleThreadSum / 5.);
         out("Average concurrent thread time, sec: %.3f", concurrentThreadSum / 5.);
+        out("Average concurrent parallel streams time, sec: %.3f", concurrentParallelStreamSum / 5.);
     }
 
     private static void out(String format, double ms) {
