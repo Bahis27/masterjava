@@ -1,4 +1,4 @@
-package ru.javaops.masterjava.service;
+package ru.javaops.masterjava.hw2;
 
 import java.io.IOException;
 import java.util.stream.Collectors;
@@ -12,8 +12,9 @@ import ru.javaops.masterjava.xml.schema.ObjectFactory;
 import ru.javaops.masterjava.xml.schema.Payload;
 import ru.javaops.masterjava.xml.schema.User;
 import ru.javaops.masterjava.xml.util.JaxbParser;
+import ru.javaops.masterjava.xml.util.Schemas;
 
-public class MainXml {
+public class MainXmlJAXB {
 
     private static final JaxbParser JAXB_PARSER = new JaxbParser(ObjectFactory.class);
 
@@ -25,10 +26,12 @@ public class MainXml {
         }
     }
 
-    private static void printUsers(String groupName) throws JAXBException, IOException {
+    private static void printUsers(String name) throws JAXBException, IOException {
         Payload payload = JAXB_PARSER.unmarshal(Resources.getResource("payload.xml").openStream());
+        JAXB_PARSER.setSchema(Schemas.ofClasspath("payload.xsd"));
+
         Group group = payload.getGroups().getGroup().stream()
-                .filter(g -> g.getGroupName().equals(groupName))
+                .filter(g -> g.getGroupName().equals(name))
                 .findAny()
                 .orElse(null);
 
@@ -39,7 +42,7 @@ public class MainXml {
                     .collect(Collectors.toList())
                     .forEach(System.out::println);
         } else {
-            System.out.println("There is no any group with " + groupName + " name.");
+            System.out.println("There is no any group with " + name + " name.");
         }
     }
 }
