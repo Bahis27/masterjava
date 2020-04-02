@@ -1,0 +1,68 @@
+<Payload xmlns="http://javaops.ru"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://javaops.ru payload.xsd">
+
+    <Projects>
+        <Project>
+            <courseName>topjava</courseName>
+            <courseDescription>Spring project</courseDescription>
+        </Project>
+        <Project>
+            <courseName>masterjava</courseName>
+            <courseDescription>Multi Maven Project</courseDescription>
+        </Project>
+    </Projects>
+    <Groups>
+        <Group>
+            <groupName>masterjava01</groupName>
+            <groupFlag>FINISHED</groupFlag>
+            <Users>
+                <User flag="active" city="kiv" email="gmail@gmail.com">
+                    <fullName>Ivan</fullName>
+                </User>
+                <User flag="deleted" city="spb" email="mail@yandex.ru">
+                    <fullName>Petr</fullName>
+                </User>
+                <User flag="superuser" city="spb" email="admin@javaops.ru">
+                    <fullName>Admin</fullName>
+                </User>
+            </Users>
+        </Group>
+        <Group>
+            <groupName>masterjava02</groupName>
+            <groupFlag>CURRENT</groupFlag>
+            <Users>
+                <User flag="active" city="mnl" email="my_mail@gmail.com">
+                    <fullName>Pavel</fullName>
+                </User>
+                <User flag="active" city="mnl" email="vika@yandex.ru">
+                    <fullName>Victoria</fullName>
+                </User>
+                <User flag="superuser" city="spb" email="admin@javaops.ru">
+                    <fullName>Admin</fullName>
+                </User>
+            </Users>
+        </Group>
+        <Group>
+            <groupName>masterjava03</groupName>
+            <groupFlag>REGISTERING</groupFlag>
+            <Users>
+                <User flag="active" city="mnsk" email="nadya@gmail.com">
+                    <fullName>Nadezhda</fullName>
+                </User>
+                <User flag="active" city="kiv" email="luba@yandex.ru">
+                    <fullName>Lubov</fullName>
+                </User>
+                <User flag="superuser" city="spb" email="admin@javaops.ru">
+                    <fullName>Admin</fullName>
+                </User>
+            </Users>
+        </Group>
+    </Groups>
+    <Cities>
+        <City id="spb">Санкт-Петербург</City>
+        <City id="kiv">Киев</City>
+        <City id="mnsk">Минск</City>
+        <City id="mnl">Манила</City>
+    </Cities>
+</Payload>
