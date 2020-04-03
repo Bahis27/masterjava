@@ -1,6 +1,8 @@
 package ru.javaops.masterjava.hw2;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
@@ -10,6 +12,7 @@ import com.google.common.io.Resources;
 import ru.javaops.masterjava.xml.schema.Group;
 import ru.javaops.masterjava.xml.schema.ObjectFactory;
 import ru.javaops.masterjava.xml.schema.Payload;
+import ru.javaops.masterjava.xml.schema.Project;
 import ru.javaops.masterjava.xml.schema.User;
 import ru.javaops.masterjava.xml.util.JaxbParser;
 import ru.javaops.masterjava.xml.util.Schemas;
@@ -30,13 +33,24 @@ public class MainXmlJAXB {
         Payload payload = JAXB_PARSER.unmarshal(Resources.getResource("payload.xml").openStream());
         JAXB_PARSER.setSchema(Schemas.ofClasspath("payload.xsd"));
 
-        Group group = payload.getGroups().getGroup().stream()
-                .filter(g -> g.getGroupName().equals(name))
-                .findAny()
-                .orElse(null);
+        List<Project> projects = new ArrayList<>(payload.getProjects().getProject());
 
-        if (group != null) {
-            group.getUsers().getUser().stream()
+        Group resultGroup = null;
+
+        out:
+        for (Project project: projects) {
+            List<Group> groups = project.getGroups().getGroup();
+
+            for (Group group: groups) {
+                if (group.getGroupName().equals(name)) {
+                    resultGroup = group;
+                    break out;
+                }
+            }
+        }
+
+        if (resultGroup != null) {
+            resultGroup.getUsers().getUser().stream()
                     .map(User::getFullName)
                     .sorted(String::compareTo)
                     .collect(Collectors.toList())

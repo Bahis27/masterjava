@@ -4,11 +4,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
+
+import org.w3c.dom.NodeList;
 
 import com.google.common.io.Resources;
 
@@ -21,21 +23,86 @@ public class MainXPathHTML {
                      Resources.getResource("payload.xml").openStream()) {
             XPathProcessor processor = new XPathProcessor(is);
 
-            String name = "masterjava02";
-            int resultIndex = getResultIndex(name, processor);
-
-            if (resultIndex == 0) {
-                System.out.println("There is no any group with " + name + " name.");
-            } else {
-                generateHTML(getUsersWithEmail(resultIndex, processor), name);
-            }
+            generateHTML("masterjava02", processor);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private static void generateHTML(Map<String, String> users, String groupName) {
+    private static void generateHTML(String groupName, XPathProcessor processor) {
+        int projectQuantity = getQuantity("count(/*[name()='Payload']/*[name()='Projects']/*[name()='Project'])", processor);
+
+        int projectCount;
+        int groupCount = 0;
+
+        boolean isExist = false;
+
+        out:
+        for (projectCount = 1; projectCount <= projectQuantity; projectCount++) {
+
+            int groupQuantity = getQuantity(
+                    "count(/*[name()='Payload']/*[name()='Projects']/*[name()='Project'][" + projectCount +
+                            "]/*[name()='Groups']/*[name()='Group']/*[name()='groupName'])",
+                    processor);
+
+            for (groupCount = 1; groupCount <= groupQuantity; groupCount++) {
+                XPathExpression expression = XPathProcessor.getExpression(
+                        "/*[name()='Payload']/*[name()='Projects']/*[name()='Project'][" + projectCount +
+                                "]/*[name()='Groups']/*[name()='Group'][" + groupCount + "]/*[name()='groupName']/text()");
+                String currentGroupName = processor.evaluate(expression, XPathConstants.STRING);
+                if (currentGroupName.equals(groupName)) {
+                    isExist = true;
+                    break out;
+                }
+            }
+        }
+
+        if (!isExist) {
+            System.out.println("There is no any group with " + groupName + " name.");
+            return;
+        }
+
+        writeHTML(getUsers(processor, projectCount, groupCount), groupName);
+
+    }
+
+    private static int getQuantity(String exp, XPathProcessor processor) {
+        XPathExpression expression =
+                XPathProcessor.getExpression(exp);
+        Double d = processor.evaluate(expression, XPathConstants.NUMBER);
+        return d.intValue();
+    }
+
+    private static Map<String, String> getUsers(XPathProcessor processor, int projectCount, int groupCount) {
+        Map<String, String> users = new TreeMap<>();
+        XPathExpression expression =
+                XPathProcessor.getExpression(
+                        "/*[name()='Payload']/*[name()='Projects']/*[name()='Project'][" + projectCount +
+                                "]/*[name()='Groups']/*[name()='Group'][" + groupCount +
+                                "]/*[name()='Users']/*[name()='User']"
+                );
+
+        NodeList nodes = processor.evaluate(expression, XPathConstants.NODESET);
+
+        for (int i = 0; i < nodes.getLength(); i++) {
+            String email = nodes.item(i).getAttributes().getNamedItem("email").getNodeValue();
+            String name = processor.evaluate(
+                    XPathProcessor.getExpression(
+                            "/*[name()='Payload']/*[name()='Projects']/*[name()='Project'][" + projectCount +
+                                    "]/*[name()='Groups']/*[name()='Group'][" + groupCount +
+                                    "]/*[name()='Users']/*[name()='User'][" + (i + 1) + "]/*[name()='fullName']/text()"
+                    ),
+                    XPathConstants.STRING
+            );
+
+            users.put(name, email);
+        }
+
+        return users;
+    }
+
+    private static void writeHTML(Map<String, String> users, String groupName) {
         try (FileWriter out = new FileWriter(new File("users.html"))){
             out.write("<html lang=\"ru\">\n" +
                     "<head>\n" +
@@ -72,55 +139,4 @@ public class MainXPathHTML {
             e.printStackTrace();
         }
     }
-
-    private static Map<String, String> getUsersWithEmail(int resultIndex, XPathProcessor processor) {
-        String exp = "count(/*[name()='Payload']/*[name()='Groups']/*[name()='Group'][" +
-                resultIndex + "]/*[name()='Users']/*[name()='User'])";
-
-        Map<String, String> users = new HashMap<>();
-        XPathExpression expression;
-
-        for (int i = 1; i <= getQuantity(exp, processor) ; i++) {
-            expression = XPathProcessor.getExpression("/*[name()='Payload']/*[name()='Groups']/*[name()='Group'][" +
-                    resultIndex + "]/*[name()='Users']/*[name()='User'][" +
-                    + i + "]/*[name()='fullName']/text()");
-            String name = processor.evaluate(expression, XPathConstants.STRING);
-
-            expression = XPathProcessor.getExpression("/*[name()='Payload']/*[name()='Groups']/*[name()='Group'][" +
-                    resultIndex + "]/*[name()='Users']/*[name()='User'][" +
-                    + i + "]/@email");
-            String email = processor.evaluate(expression, XPathConstants.STRING);
-
-            users.put(name, email);
-        }
-
-        return users;
-    }
-
-    private static int getResultIndex(String name, XPathProcessor processor) {
-        int resultIndex = 0;
-        String exp = "count(/*[name()='Payload']/*[name()='Groups']/*[name()='Group'])";
-        XPathExpression expression;
-
-        for (int i = 1; i <= getQuantity(exp, processor); i++) {
-            expression = XPathProcessor.getExpression(
-                    "/*[name()='Payload']/*[name()='Groups']/*[name()='Group'][" + i + "]/*[name()='groupName']/text()");
-
-            String s = processor.evaluate(expression, XPathConstants.STRING);
-            if (s.equals(name)) {
-                resultIndex = i;
-                break;
-            }
-        }
-
-        return resultIndex;
-    }
-
-    private static int getQuantity(String exp, XPathProcessor processor) {
-        XPathExpression expression =
-                XPathProcessor.getExpression(exp);
-        Double d = processor.evaluate(expression, XPathConstants.NUMBER);
-        return d.intValue();
-    }
-
 }

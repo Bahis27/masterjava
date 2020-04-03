@@ -27,14 +27,14 @@ public class MainXmlStAX {
                 new StaxStreamProcessor(Resources.getResource("payload.xml").openStream())) {
 
             XMLStreamReader reader = processor.getReader();
-            int count = 0;
+            boolean isExist = false;
             List<String> result = new ArrayList<>();
 
             String groupName;
             while ((groupName = processor.getElementValue("groupName")) != null) {
 
                 if (groupName.equals(name)) {
-                    count++;
+                    isExist = true;
                     int event = 0;
 
                     String email = null;
@@ -61,10 +61,12 @@ public class MainXmlStAX {
                             }
                         }
                     }
+
+                    break;
                 }
             }
 
-            if (count == 0) {
+            if (!isExist) {
                 System.out.println("There is no any group with " + name + " name.");
             } else {
                 result.stream()

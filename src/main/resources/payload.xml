@@ -6,59 +6,106 @@
         <Project>
             <courseName>topjava</courseName>
             <courseDescription>Spring project</courseDescription>
+            <Groups>
+                <Group>
+                    <groupName>topjava01</groupName>
+                    <groupFlag>FINISHED</groupFlag>
+                    <Users>
+                        <User flag="active" city="kiv" email="katya@gmail.com">
+                            <fullName>Katerina</fullName>
+                        </User>
+                        <User flag="deleted" city="spb" email="olya@yandex.ru">
+                            <fullName>Olga</fullName>
+                        </User>
+                        <User flag="superuser" city="spb" email="admin@javaops.ru">
+                            <fullName>Admin</fullName>
+                        </User>
+                    </Users>
+                </Group>
+                <Group>
+                    <groupName>topjava02</groupName>
+                    <groupFlag>CURRENT</groupFlag>
+                    <Users>
+                        <User flag="active" city="mnl" email="max@gmail.com">
+                            <fullName>Maksim</fullName>
+                        </User>
+                        <User flag="active" city="mnl" email="alex@yandex.ru">
+                            <fullName>Aleksey</fullName>
+                        </User>
+                        <User flag="superuser" city="spb" email="admin@javaops.ru">
+                            <fullName>Admin</fullName>
+                        </User>
+                    </Users>
+                </Group>
+                <Group>
+                    <groupName>topjava03</groupName>
+                    <groupFlag>REGISTERING</groupFlag>
+                    <Users>
+                        <User flag="active" city="mnsk" email="vova@gmail.com">
+                            <fullName>Vladimir</fullName>
+                        </User>
+                        <User flag="active" city="kiv" email="grey@yandex.ru">
+                            <fullName>Sergey</fullName>
+                        </User>
+                        <User flag="superuser" city="spb" email="admin@javaops.ru">
+                            <fullName>Admin</fullName>
+                        </User>
+                    </Users>
+                </Group>
+            </Groups>
         </Project>
         <Project>
             <courseName>masterjava</courseName>
             <courseDescription>Multi Maven Project</courseDescription>
+            <Groups>
+                <Group>
+                    <groupName>masterjava01</groupName>
+                    <groupFlag>FINISHED</groupFlag>
+                    <Users>
+                        <User flag="active" city="kiv" email="gmail@gmail.com">
+                            <fullName>Ivan</fullName>
+                        </User>
+                        <User flag="deleted" city="spb" email="mail@yandex.ru">
+                            <fullName>Petr</fullName>
+                        </User>
+                        <User flag="superuser" city="spb" email="admin@javaops.ru">
+                            <fullName>Admin</fullName>
+                        </User>
+                    </Users>
+                </Group>
+                <Group>
+                    <groupName>masterjava02</groupName>
+                    <groupFlag>CURRENT</groupFlag>
+                    <Users>
+                        <User flag="active" city="mnl" email="my_mail@gmail.com">
+                            <fullName>Pavel</fullName>
+                        </User>
+                        <User flag="active" city="mnl" email="vika@yandex.ru">
+                            <fullName>Victoria</fullName>
+                        </User>
+                        <User flag="superuser" city="spb" email="admin@javaops.ru">
+                            <fullName>Admin</fullName>
+                        </User>
+                    </Users>
+                </Group>
+                <Group>
+                    <groupName>masterjava03</groupName>
+                    <groupFlag>REGISTERING</groupFlag>
+                    <Users>
+                        <User flag="active" city="mnsk" email="nadya@gmail.com">
+                            <fullName>Nadezhda</fullName>
+                        </User>
+                        <User flag="active" city="kiv" email="luba@yandex.ru">
+                            <fullName>Lubov</fullName>
+                        </User>
+                        <User flag="superuser" city="spb" email="admin@javaops.ru">
+                            <fullName>Admin</fullName>
+                        </User>
+                    </Users>
+                </Group>
+            </Groups>
         </Project>
     </Projects>
-    <Groups>
-        <Group>
-            <groupName>masterjava01</groupName>
-            <groupFlag>FINISHED</groupFlag>
-            <Users>
-                <User flag="active" city="kiv" email="gmail@gmail.com">
-                    <fullName>Ivan</fullName>
-                </User>
-                <User flag="deleted" city="spb" email="mail@yandex.ru">
-                    <fullName>Petr</fullName>
-                </User>
-                <User flag="superuser" city="spb" email="admin@javaops.ru">
-                    <fullName>Admin</fullName>
-                </User>
-            </Users>
-        </Group>
-        <Group>
-            <groupName>masterjava02</groupName>
-            <groupFlag>CURRENT</groupFlag>
-            <Users>
-                <User flag="active" city="mnl" email="my_mail@gmail.com">
-                    <fullName>Pavel</fullName>
-                </User>
-                <User flag="active" city="mnl" email="vika@yandex.ru">
-                    <fullName>Victoria</fullName>
-                </User>
-                <User flag="superuser" city="spb" email="admin@javaops.ru">
-                    <fullName>Admin</fullName>
-                </User>
-            </Users>
-        </Group>
-        <Group>
-            <groupName>masterjava03</groupName>
-            <groupFlag>REGISTERING</groupFlag>
-            <Users>
-                <User flag="active" city="mnsk" email="nadya@gmail.com">
-                    <fullName>Nadezhda</fullName>
-                </User>
-                <User flag="active" city="kiv" email="luba@yandex.ru">
-                    <fullName>Lubov</fullName>
-                </User>
-                <User flag="superuser" city="spb" email="admin@javaops.ru">
-                    <fullName>Admin</fullName>
-                </User>
-            </Users>
-        </Group>
-    </Groups>
     <Cities>
         <City id="spb">Санкт-Петербург</City>
         <City id="kiv">Киев</City>
