@@ -86,6 +86,9 @@
                         <User flag="superuser" city="spb" email="admin@javaops.ru">
                             <fullName>Admin</fullName>
                         </User>
+                        <User flag="active" city="spb" email="sam@javaops.ru">
+                            <fullName>Sam</fullName>
+                        </User>
                     </Users>
                 </Group>
                 <Group>
