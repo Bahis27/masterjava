@@ -1,9 +1,9 @@
 package ru.javaops.masterjava.hw2;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -14,13 +14,26 @@ import org.w3c.dom.NodeList;
 
 import com.google.common.io.Resources;
 
+import j2html.tags.ContainerTag;
 import ru.javaops.masterjava.xml.util.XPathProcessor;
+
+import static j2html.TagCreator.body;
+import static j2html.TagCreator.h1;
+import static j2html.TagCreator.head;
+import static j2html.TagCreator.html;
+import static j2html.TagCreator.meta;
+import static j2html.TagCreator.table;
+import static j2html.TagCreator.td;
+import static j2html.TagCreator.th;
+import static j2html.TagCreator.title;
+import static j2html.TagCreator.tr;
 
 public class MainXPathHTML {
 
     public static void main(String[] args) {
-        try (InputStream is =
-                     Resources.getResource("payload.xml").openStream()) {
+        try (InputStream is = Resources.getResource("payload.xml").openStream();
+             Writer out = Files.newBufferedWriter(Paths.get("out/users.html"))) {
+
             XPathProcessor processor = new XPathProcessor(is);
             String groupName = "masterjava02";
 
@@ -29,7 +42,7 @@ public class MainXPathHTML {
             if (users == null) {
                 System.out.println("There is no any group with " + groupName + " name.");
             } else {
-                generateHTML(users, groupName);
+                out.write(toHTML(users, groupName));
             }
 
         } catch (Exception e) {
@@ -67,44 +80,20 @@ public class MainXPathHTML {
         return users;
     }
 
-    private static void generateHTML(Map<String, String> users, String groupName) {
-        try (FileWriter out = new FileWriter(new File("users.html"))){
-            out.write("<!DOCTYPE html>\n" +
-                    "<html lang=\"ru\">\n" +
-                    "<head>\n" +
-                    "  <title>Пользователи</title>\n" +
-                    "  <meta charset=\"utf-8\"/>\n" +
-                    "</head>\n" +
-                    "\n" +
-                    "<body>\n" +
-                    "  <h1>Пользователи группы " + groupName + "</h1>\n" +
-                    "  <table border=\"1\" cellpadding=\"10\" cellspacing=\"0\">\n" +
-                    "    <thead>\n" +
-                    "      <tr>\n" +
-                    "        <th align=\"left\">ИМЯ</th>\n" +
-                    "        <th align=\"left\">ПОЧТОВЫЙ ЯЩИК</th>\n" +
-                    "      </tr>\n" +
-                    "    </thead>\n" +
-                    "    <tbody>");
+    private static String toHTML(Map<String, String> users, String groupName) {
+        final ContainerTag table = table().with(
+                tr().with(th("ИМЯ"), th("ПОЧТОВЫЙ ЯЩИК")))
+                .attr("border", "1")
+                .attr("cellpadding", "10")
+                .attr("cellspacing", "0");
 
-            users.forEach((k, v) -> {
-                try {
-                    out.write("<tr>\n" +
-                            "        <td>" + k + "</td>\n" +
-                            "        <td>" + v + "</td>\n" +
-                            "      </tr>");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
+        users.forEach((k, v) -> {
+            table.with(tr().with(td(k), td(v)));
+        });
 
-            out.write("    </tbody>\n" +
-                    "  </table>\n" +
-                    "</body>\n" +
-                    "\n" +
-                    "</html>");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        return html().with(
+                head().with(title("Пользователи"), meta().withCharset("utf-8")),
+                body().with(h1("Пользователи группы " + groupName), table)
+        ).render();
     }
 }

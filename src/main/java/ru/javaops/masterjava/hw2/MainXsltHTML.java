@@ -1,9 +1,10 @@
 package ru.javaops.masterjava.hw2;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import javax.xml.transform.TransformerException;
 
@@ -25,7 +26,7 @@ public class MainXsltHTML {
 
         try (InputStream xslIn = Resources.getResource("groups.xsl").openStream();
              InputStream xmlIn = Resources.getResource("payload.xml").openStream();
-             FileWriter out = new FileWriter(new File("group.html"))) {
+             Writer out = Files.newBufferedWriter(Paths.get("out/group.html"))) {
 
             XsltProcessor processor = new XsltProcessor(xslIn);
             processor.setParameter("projectName", projectName);

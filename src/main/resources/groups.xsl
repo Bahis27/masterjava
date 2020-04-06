@@ -1,7 +1,7 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                xmlns="http://www.w3.org/1999/xhtml">
-    <xsl:output method="html" omit-xml-declaration="yes" indent="no" doctype-public="java.ops"/>
-    <xsl:strip-space elements="*"/>
+                xmlns="http://www.w3.org/1999/xhtml" xmlns:p="http://javaops.ru">
+
+    <xsl:output method="html" omit-xml-declaration="yes" indent="yes" doctype-public="java.ops"/>
     <xsl:param name="projectName"/>
 
     <!--XHTML document-->
@@ -17,27 +17,20 @@
             </style>
         </head>
             <body>
-                <xsl:apply-templates/>
+                <h1>Группы проекта <xsl:value-of select="$projectName"/></h1>
+                <p><strong>Описание: </strong><xsl:value-of select="/p:Payload/p:Projects/p:Project/p:courseName[text()=$projectName]/../p:courseDescription/text()"/></p>
+                <table>
+                    <tr><th>Group Name</th><th>Group Flag</th><th>Number of Users</th></tr>
+                    <xsl:for-each select="/p:Payload/p:Projects/p:Project/p:courseName[text()=$projectName]/../p:Groups/p:Group">
+                        <tr>
+                            <td><xsl:value-of select="./p:groupName/text()"/></td>
+                            <td><xsl:value-of select="./p:groupFlag/text()"/></td>
+                            <td><xsl:value-of select="count(./p:Users/p:User)"/></td>
+                        </tr>
+                    </xsl:for-each>
+                </table>
             </body>
         </html>
     </xsl:template>
-
-    <!--Headers, Table-->
-    <xsl:template match="//*[text() = $projectName]">
-        <h1>Группы проекта <xsl:value-of select="parent::*/*[name()='courseName']/text()"/></h1>
-        <p><strong>Описание: </strong><xsl:copy-of select="parent::*/*[name()='courseDescription']/text()"/></p>
-        <table>
-            <tr><th>Group Name</th><th>Group Flag</th><th>Number of Users</th></tr>
-            <xsl:for-each select="parent::*/*[name()='Groups']/*[name()='Group']">
-                <tr>
-                    <td><xsl:copy-of select="./*[name()='groupName']/text()"/></td>
-                    <td><xsl:copy-of select="./*[name()='groupFlag']/text()"/></td>
-                    <td><xsl:value-of select="count(./*[name()='Users']/*[name()='User'])"/></td>
-                </tr>
-            </xsl:for-each>
-        </table>
-    </xsl:template>
-
-    <xsl:template match="text()"/>
 
 </xsl:stylesheet>
