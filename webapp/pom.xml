@@ -16,4 +16,12 @@
     <packaging>war</packaging>
     <name>Webapp</name>
 
+    <dependencies>
+        <dependency>
+            <groupId>ru.javaops</groupId>
+            <artifactId>mail-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
 </project>

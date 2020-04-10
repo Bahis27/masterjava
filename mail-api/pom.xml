@@ -16,5 +16,12 @@
     <packaging>jar</packaging>
     <name>Mail-api</name>
 
+    <dependencies>
+        <dependency>
+            <groupId>ru.javaops</groupId>
+            <artifactId>common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
     
 </project>

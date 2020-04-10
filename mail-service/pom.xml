@@ -15,5 +15,13 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
     <name>Mail-service</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>ru.javaops</groupId>
+            <artifactId>mail-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
     
 </project>
