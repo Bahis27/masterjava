@@ -9,15 +9,16 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
+import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
 
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.thymeleaf.context.WebContext;
 
-import ru.javaops.masterjava.xml.schema.FlagType;
+import ru.javaops.masterjava.xml.schema.Payload;
 import ru.javaops.masterjava.xml.schema.User;
+import ru.javaops.masterjava.xml.util.JaxbParser;
 import ru.javaops.masterjava.xml.util.StaxStreamProcessor;
 
 public class UploadApplication {
@@ -35,21 +36,18 @@ public class UploadApplication {
             Collection<Part> parts = request.getParts();
             List<User> users = new ArrayList<>();
 
+            JaxbParser parser = JaxbParser.getInstance(Payload.class);
+
             for (Part part : parts) {
                 try (StaxStreamProcessor processor = new StaxStreamProcessor(part.getInputStream())) {
-                    XMLStreamReader reader = processor.getReader();
-                    while (reader.hasNext()) {
-                        int event = reader.next();
-                        if (event == XMLEvent.START_ELEMENT) {
-                            if ("User".equals(reader.getLocalName())) {
-                                User user = new User();
-                                user.setFlag(FlagType.fromValue(reader.getAttributeValue(0)));
-                                user.setEmail(reader.getAttributeValue(2));
-                                user.setValue(reader.getElementText());
-                                users.add(user);
-                            }
-                        }
+
+                    while (processor.doUntil(XMLEvent.START_ELEMENT, "User")) {
+                        User user = parser.unmarshal(processor.getReader(), User.class);
+                        users.add(user);
                     }
+
+                } catch (JAXBException e) {
+                    e.printStackTrace();
                 }
             }
 

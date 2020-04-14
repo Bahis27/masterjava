@@ -7,13 +7,18 @@ import ru.javaops.masterjava.xml.schema.ObjectFactory;
 import ru.javaops.masterjava.xml.schema.Payload;
 
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
 public class JaxbParserTest {
-    private static final JaxbParser JAXB_PARSER = new JaxbParser(ObjectFactory.class);
+    private static final JaxbParser JAXB_PARSER = JaxbParser.getInstance(ObjectFactory.class);
 
     static {
-        JAXB_PARSER.setSchema(Schemas.ofClasspath("payload.xsd"));
+        try {
+            JAXB_PARSER.setSchema(Schemas.ofClasspath("payload.xsd"));
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test

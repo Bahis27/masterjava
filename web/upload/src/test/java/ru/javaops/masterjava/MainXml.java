@@ -59,7 +59,7 @@ public class MainXml {
     }
 
     private static Set<User> parseByJaxb(String projectName, URL payloadUrl) throws Exception {
-        JaxbParser parser = new JaxbParser(ObjectFactory.class);
+        JaxbParser parser = JaxbParser.getInstance(ObjectFactory.class);
         parser.setSchema(Schemas.ofClasspath("payload.xsd"));
         Payload payload;
         try (InputStream is = payloadUrl.openStream()) {
@@ -102,7 +102,7 @@ public class MainXml {
             // Users loop
             Set<User> users = new TreeSet<>(USER_COMPARATOR);
 
-            JaxbParser parser = new JaxbParser(User.class);
+            JaxbParser parser = JaxbParser.getInstance(User.class);
             while (processor.doUntil(XMLEvent.START_ELEMENT, "User")) {
                 String groupRefs = processor.getAttribute("groupRefs");
                 if (!Collections.disjoint(groupNames, Splitter.on(' ').splitToList(nullToEmpty(groupRefs)))) {
