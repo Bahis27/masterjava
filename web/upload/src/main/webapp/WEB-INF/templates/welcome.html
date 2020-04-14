@@ -1,10 +1,18 @@
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Thymeleaf Demo</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-</head>
-<body>
-<p th:text="#{welcome.msg}">Welcome Offline</p>
-<p>Date : <span th:text="${currentDate}">Sat Oct 24 2015</span></p>
-</body>
+    <head>
+        <title>upload</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    </head>
+    <body>
+        <h3>File Uploading Form</h3>
+        <form action="/" enctype="multipart/form-data" method="post">
+            <p>
+                <!--/*@thymesVar id="message" type=""*/-->
+                <label>Select a <strong th:text="${message}"/> file: </label>
+                <br>
+                <input type="file" name="file"/>
+            </p>
+            <input type="submit" value="Upload File" />
+        </form>
+    </body>
 </html>
