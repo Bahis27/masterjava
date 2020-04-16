@@ -21,7 +21,7 @@ import org.xml.sax.SAXException;
  * Marshalling/Unmarshalling JAXB helper
  * XML Facade
  */
-public class JaxbParser {
+public class JaxbParser implements AutoCloseable {
 
     private static Map<Class, JaxbParser> singletonMap = new ConcurrentHashMap<>();
     private Class clazz;
@@ -104,5 +104,19 @@ public class JaxbParser {
 
     public void validate(Reader reader) throws IOException, SAXException {
         schema.newValidator().validate(new StreamSource(reader));
+    }
+
+    private void closeM() {
+        jaxbMarshallerThreadLocal.remove();
+    }
+
+    private void closeUM() {
+        jaxbUnmarshallerThreadLocal.remove();
+    }
+
+    @Override
+    public void close() {
+        closeM();
+        closeUM();
     }
 }

@@ -1,19 +1,24 @@
 package ru.javaops.masterjava.xml.util;
 
-import com.google.common.io.Resources;
-import org.junit.Test;
-import ru.javaops.masterjava.xml.schema.CityType;
-import ru.javaops.masterjava.xml.schema.ObjectFactory;
-import ru.javaops.masterjava.xml.schema.Payload;
-
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import com.google.common.io.Resources;
+
+import ru.javaops.masterjava.xml.schema.CityType;
+import ru.javaops.masterjava.xml.schema.ObjectFactory;
+import ru.javaops.masterjava.xml.schema.Payload;
+
 public class JaxbParserTest {
     private static final JaxbParser JAXB_PARSER = JaxbParser.getInstance(ObjectFactory.class);
 
-    static {
+    @BeforeClass
+    public static void init() {
         try {
             JAXB_PARSER.setSchema(Schemas.ofClasspath("payload.xsd"));
         } catch (JAXBException e) {
@@ -41,5 +46,10 @@ public class JaxbParserTest {
         String strCity = JAXB_PARSER.marshal(cityElement2);
         JAXB_PARSER.validate(strCity);
         System.out.println(strCity);
+    }
+
+    @AfterClass
+    public static void tearDown() throws Exception {
+        JAXB_PARSER.close();
     }
 }

@@ -1,7 +1,22 @@
 package ru.javaops.masterjava;
 
+import java.io.InputStream;
+import java.io.Writer;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+
+import javax.xml.stream.events.XMLEvent;
+
 import com.google.common.base.Splitter;
 import com.google.common.io.Resources;
+
 import j2html.tags.ContainerTag;
 import one.util.streamex.StreamEx;
 import ru.javaops.masterjava.xml.schema.ObjectFactory;
@@ -13,17 +28,16 @@ import ru.javaops.masterjava.xml.util.Schemas;
 import ru.javaops.masterjava.xml.util.StaxStreamProcessor;
 import ru.javaops.masterjava.xml.util.XsltProcessor;
 
-import javax.xml.stream.events.XMLEvent;
-import java.io.InputStream;
-import java.io.Writer;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.stream.Collectors;
-
 import static com.google.common.base.Strings.nullToEmpty;
-import static j2html.TagCreator.*;
+import static j2html.TagCreator.body;
+import static j2html.TagCreator.h1;
+import static j2html.TagCreator.head;
+import static j2html.TagCreator.html;
+import static j2html.TagCreator.table;
+import static j2html.TagCreator.td;
+import static j2html.TagCreator.th;
+import static j2html.TagCreator.title;
+import static j2html.TagCreator.tr;
 
 public class MainXml {
 
@@ -59,29 +73,32 @@ public class MainXml {
     }
 
     private static Set<User> parseByJaxb(String projectName, URL payloadUrl) throws Exception {
-        JaxbParser parser = JaxbParser.getInstance(ObjectFactory.class);
-        parser.setSchema(Schemas.ofClasspath("payload.xsd"));
-        Payload payload;
-        try (InputStream is = payloadUrl.openStream()) {
-            payload = parser.unmarshal(is);
+
+        try (InputStream is = payloadUrl.openStream();
+             JaxbParser parser = JaxbParser.getInstance(ObjectFactory.class)) {
+
+            parser.setSchema(Schemas.ofClasspath("payload.xsd"));
+            Payload payload = parser.unmarshal(is);
+
+            Project project = StreamEx.of(payload.getProjects().getProject())
+                    .filter(p -> p.getName().equals(projectName))
+                    .findAny()
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid project name '" + projectName + '\''));
+
+            final Set<Project.Group> groups = new HashSet<>(project.getGroup());  // identity compare
+            return StreamEx.of(payload.getUsers().getUser())
+                    .filter(u -> !Collections.disjoint(groups, u.getGroupRefs()))
+                    .collect(
+                            Collectors.toCollection(() -> new TreeSet<>(USER_COMPARATOR))
+                    );
         }
-
-        Project project = StreamEx.of(payload.getProjects().getProject())
-                .filter(p -> p.getName().equals(projectName))
-                .findAny()
-                .orElseThrow(() -> new IllegalArgumentException("Invalid project name '" + projectName + '\''));
-
-        final Set<Project.Group> groups = new HashSet<>(project.getGroup());  // identity compare
-        return StreamEx.of(payload.getUsers().getUser())
-                .filter(u -> !Collections.disjoint(groups, u.getGroupRefs()))
-                .collect(
-                        Collectors.toCollection(() -> new TreeSet<>(USER_COMPARATOR))
-                );
     }
 
     private static Set<User> processByStax(String projectName, URL payloadUrl) throws Exception {
 
-        try (InputStream is = payloadUrl.openStream()) {
+        try (InputStream is = payloadUrl.openStream();
+             JaxbParser parser = JaxbParser.getInstance(ObjectFactory.class)) {
+
             StaxStreamProcessor processor = new StaxStreamProcessor(is);
             final Set<String> groupNames = new HashSet<>();
 
@@ -102,7 +119,6 @@ public class MainXml {
             // Users loop
             Set<User> users = new TreeSet<>(USER_COMPARATOR);
 
-            JaxbParser parser = JaxbParser.getInstance(User.class);
             while (processor.doUntil(XMLEvent.START_ELEMENT, "User")) {
                 String groupRefs = processor.getAttribute("groupRefs");
                 if (!Collections.disjoint(groupNames, Splitter.on(' ').splitToList(nullToEmpty(groupRefs)))) {

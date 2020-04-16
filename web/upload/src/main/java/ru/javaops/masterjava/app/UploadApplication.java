@@ -16,7 +16,7 @@ import javax.xml.stream.events.XMLEvent;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.thymeleaf.context.WebContext;
 
-import ru.javaops.masterjava.xml.schema.Payload;
+import ru.javaops.masterjava.xml.schema.ObjectFactory;
 import ru.javaops.masterjava.xml.schema.User;
 import ru.javaops.masterjava.xml.util.JaxbParser;
 import ru.javaops.masterjava.xml.util.StaxStreamProcessor;
@@ -36,10 +36,9 @@ public class UploadApplication {
             Collection<Part> parts = request.getParts();
             List<User> users = new ArrayList<>();
 
-            JaxbParser parser = JaxbParser.getInstance(Payload.class);
-
             for (Part part : parts) {
-                try (StaxStreamProcessor processor = new StaxStreamProcessor(part.getInputStream())) {
+                try (StaxStreamProcessor processor = new StaxStreamProcessor(part.getInputStream());
+                     JaxbParser parser = JaxbParser.getInstance(ObjectFactory.class)) {
 
                     while (processor.doUntil(XMLEvent.START_ELEMENT, "User")) {
                         User user = parser.unmarshal(processor.getReader(), User.class);
