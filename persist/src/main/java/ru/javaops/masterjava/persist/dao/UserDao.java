@@ -1,11 +1,18 @@
 package ru.javaops.masterjava.persist.dao;
 
-import com.bertoncelj.jdbi.entitymapper.EntityMapperFactory;
-import org.skife.jdbi.v2.sqlobject.*;
-import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapperFactory;
-import ru.javaops.masterjava.persist.model.User;
-
 import java.util.List;
+
+import org.skife.jdbi.v2.sqlobject.Bind;
+import org.skife.jdbi.v2.sqlobject.BindBean;
+import org.skife.jdbi.v2.sqlobject.GetGeneratedKeys;
+import org.skife.jdbi.v2.sqlobject.SqlBatch;
+import org.skife.jdbi.v2.sqlobject.SqlQuery;
+import org.skife.jdbi.v2.sqlobject.SqlUpdate;
+import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapperFactory;
+
+import com.bertoncelj.jdbi.entitymapper.EntityMapperFactory;
+
+import ru.javaops.masterjava.persist.model.User;
 
 @RegisterMapperFactory(EntityMapperFactory.class)
 public abstract class UserDao implements AbstractDao {
@@ -26,6 +33,29 @@ public abstract class UserDao implements AbstractDao {
 
     @SqlUpdate("INSERT INTO users (id, full_name, email, flag) VALUES (:id, :fullName, :email, CAST(:flag AS user_flag)) ")
     abstract void insertWitId(@BindBean User user);
+
+    public void insertAll(List<User> users, int chunkSize) {
+        int firstIndex = 0;
+        int lastIndex = chunkSize;
+
+        while (firstIndex < users.size()) {
+
+            if (lastIndex > users.size()) {
+                lastIndex = users.size();
+            }
+
+            insertAll(users.subList(firstIndex, lastIndex));
+
+            firstIndex = firstIndex + chunkSize;
+            lastIndex = firstIndex + chunkSize;
+        }
+    }
+
+    @SqlBatch("INSERT INTO users (full_name, email, flag) VALUES (:fullName, :email, CAST(:flag AS user_flag)) ")
+    abstract void insertAll(@BindBean List<User> users);
+
+    @SqlQuery("SELECT last_value FROM user_seq")
+    abstract int getCurrentSeq();
 
     @SqlQuery("SELECT * FROM users ORDER BY full_name, email LIMIT :it")
     public abstract List<User> getWithLimit(@Bind int limit);
