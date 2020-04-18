@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.thymeleaf.context.WebContext;
 
 import ru.javaops.masterjava.persist.DBIProvider;
@@ -26,6 +28,7 @@ public class UploadServlet extends HttpServlet {
 
     private final UserProcessor userProcessor = new UserProcessor();
     private static final int CHUNK_SIZE = 5;
+    private static final Logger log = LoggerFactory.getLogger(UploadServlet.class);
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -62,13 +65,12 @@ public class UploadServlet extends HttpServlet {
                 List<User> users = userProcessor.process(is);
 
                 UserDao dao = DBIProvider.getDao(UserDao.class);
-                dao.insertAll(users, chunkSize);
-
-                webContext.setVariable("users", users);
+                webContext.setVariable("users", dao.insertAll(users, chunkSize));
                 engine.process("result", webContext, resp.getWriter());
             }
 
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
             webContext.setVariable("exception", e);
             engine.process("exception", webContext, resp.getWriter());
         }
