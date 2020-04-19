@@ -16,9 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thymeleaf.context.WebContext;
 
-import ru.javaops.masterjava.persist.DBIProvider;
-import ru.javaops.masterjava.persist.dao.UserDao;
-import ru.javaops.masterjava.persist.model.User;
+import ru.javaops.masterjava.to.UploadTo;
 
 import static ru.javaops.masterjava.common.web.ThymeleafListener.engine;
 
@@ -62,10 +60,9 @@ public class UploadServlet extends HttpServlet {
             }
 
             try (InputStream is = filePart.getInputStream()) {
-                List<User> users = userProcessor.process(is);
+                List<UploadTo> tos = userProcessor.process(is, chunkSize);
 
-                UserDao dao = DBIProvider.getDao(UserDao.class);
-                webContext.setVariable("users", dao.insertAll(users, chunkSize));
+                webContext.setVariable("tos", tos);
                 engine.process("result", webContext, resp.getWriter());
             }
 
