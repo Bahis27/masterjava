@@ -4,12 +4,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import ru.javaops.masterjava.persist.UserTestData;
+
 import ru.javaops.masterjava.persist.model.User;
+import ru.javaops.masterjava.persist.testdata.UserTestData;
 
 import java.util.List;
 
-import static ru.javaops.masterjava.persist.UserTestData.FIST5_USERS;
+import static ru.javaops.masterjava.persist.testdata.UserTestData.FIST5_USERS;
 
 public class UserDaoTest extends AbstractDaoTest<UserDao> {
 

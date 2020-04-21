@@ -45,3 +45,6 @@ insert into cities (id, name) values ('spb', 'Санкт-Петербург');
 insert into cities (id, name) values ('mow', 'Москва');
 insert into cities (id, name) values ('kiv', 'Киев');
 insert into cities (id, name) values ('mnsk', 'Минск');
+
+insert into projects (id, description) values ('masterjava', 'Masterjava');
+insert into projects (id, description) values ('topjava', 'Topjava');

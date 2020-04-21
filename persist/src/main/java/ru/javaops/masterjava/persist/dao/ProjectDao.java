@@ -1,5 +1,7 @@
 package ru.javaops.masterjava.persist.dao;
 
+import java.util.List;
+
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.BindBean;
 import org.skife.jdbi.v2.sqlobject.SqlBatch;
@@ -21,13 +23,13 @@ public abstract class ProjectDao implements AbstractDao {
     public abstract void insert(@BindBean Project project);
 
     @SqlQuery("SELECT * FROM projects ORDER BY id LIMIT :it")
-    public abstract void getWithLimit(@Bind int limit);
+    public abstract List<Project> getWithLimit(@Bind int limit);
 
     @SqlBatch("INSERT INTO projects (id, description) VALUES (:id, :description) " +
             "ON CONFLICT (id) DO NOTHING")
-    public abstract void insertBatch(@BindBean Project project, @BatchChunkSize int chunkSize);
+    public abstract void insertBatch(@BindBean List<Project> projects, @BatchChunkSize int chunkSize);
 
-    @SqlUpdate("TRUNCATE projects")
+    @SqlUpdate("TRUNCATE projects CASCADE")
     @Override
     public abstract void clean();
 }

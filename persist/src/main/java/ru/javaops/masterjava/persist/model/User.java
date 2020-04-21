@@ -17,6 +17,6 @@ public class User extends BaseEntity {
 
     public User(Integer id, String fullName, String email, UserFlag flag, String cityId) {
         this(fullName, email, flag, cityId);
-        this.id=id;
+        this.id = id;
     }
 }

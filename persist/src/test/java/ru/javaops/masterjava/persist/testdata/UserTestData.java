@@ -1,6 +1,8 @@
-package ru.javaops.masterjava.persist;
+package ru.javaops.masterjava.persist.testdata;
 
 import com.google.common.collect.ImmutableList;
+
+import ru.javaops.masterjava.persist.DBIProvider;
 import ru.javaops.masterjava.persist.dao.UserDao;
 import ru.javaops.masterjava.persist.model.User;
 import ru.javaops.masterjava.persist.model.UserFlag;

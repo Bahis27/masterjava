@@ -14,5 +14,5 @@ public class ProjectGroup {
     private @NonNull String id;
     private @NonNull GroupType type;
     @Column("project_id")
-    private @NonNull String projectId;
+    private @NonNull String project_id;     //TODO
 }
