@@ -2,6 +2,8 @@ package ru.javaops.masterjava.upload;
 
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
+import ru.javaops.masterjava.persist.model.City;
+
 import org.thymeleaf.context.WebContext;
 
 import javax.servlet.ServletException;
@@ -13,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
 
 import static ru.javaops.masterjava.common.web.ThymeleafListener.engine;
@@ -24,6 +27,7 @@ public class UploadServlet extends HttpServlet {
     private static final int CHUNK_SIZE = 2000;
 
     private final UserProcessor userProcessor = new UserProcessor();
+    private final CityProcessor cityProcessor = new CityProcessor();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -32,6 +36,7 @@ public class UploadServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.setContentType("text/html;charset=UTF-8");
         String message;
         int chunkSize = CHUNK_SIZE;
         try {
@@ -40,17 +45,47 @@ public class UploadServlet extends HttpServlet {
             if (chunkSize < 1) {
                 message = "Chunk Size must be > 1";
             } else {
-                Part filePart = req.getPart("fileToUpload");
-                try (InputStream is = filePart.getInputStream()) {
-                    List<UserProcessor.FailedEmails> failed = userProcessor.process(is, chunkSize);
-                    log.info("Failed users: " + failed);
+
+                boolean isCityUploaded = false;
+                boolean isUserUploaded = false;
+                List<City> added = null;
+                List<UserProcessor.FailedEmails> failed = null;
+
+                Part filePart = req.getPart("citiesToUpload");
+                if (filePart.getSize() != 0) {
+                    isCityUploaded = true;
+                    try (InputStream is = filePart.getInputStream()) {
+                        added = cityProcessor.process(is, chunkSize);
+                        log.info("Added cities: " + added);
+                    }
+                }
+
+                filePart = req.getPart("usersToUpload");
+                if (filePart.getSize() != 0) {
+                    isUserUploaded = true;
+                    try (InputStream is = filePart.getInputStream()) {
+                        failed = userProcessor.process(is, chunkSize);
+                        log.info("Failed users: " + failed);
+                    }
+                }
+
+                if (!isCityUploaded && !isUserUploaded) {
+                    message = "Specify almost one file";
+                } else {
+                    message = "Done";
                     final WebContext webContext =
                             new WebContext(req, resp, req.getServletContext(), req.getLocale(),
-                                    ImmutableMap.of("users", failed));
+                                    ImmutableMap.of(
+                                            "cities", added != null ? added : Collections.emptyList(),
+                                            "users", failed != null ? failed : Collections.emptyList(),
+                                            "isCityUploaded" , isCityUploaded,
+                                            "isUserUploaded", isUserUploaded
+                                    ));
                     engine.process("result", webContext, resp.getWriter());
                     return;
                 }
             }
+
         } catch (Exception e) {
             log.info(e.getMessage(), e);
             message = e.toString();

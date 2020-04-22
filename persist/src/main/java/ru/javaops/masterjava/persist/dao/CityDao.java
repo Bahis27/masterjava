@@ -1,6 +1,8 @@
 package ru.javaops.masterjava.persist.dao;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.BindBean;
@@ -27,9 +29,18 @@ public abstract class CityDao implements AbstractDao {
 
     @SqlBatch("INSERT INTO cities (id, name) VALUES (:id, :name) " +
             "ON CONFLICT (id) DO NOTHING")
-    public abstract void insertBatch(@BindBean List<City> cities, @BatchChunkSize int chunkSize);
+    public abstract int[] insertBatch(@BindBean List<City> cities, @BatchChunkSize int chunkSize);
 
     @SqlUpdate("TRUNCATE cities CASCADE")
     @Override
     public abstract void clean();
+
+    public List<City> insertAndGetAddedCities(List<City> cities) {
+        log.info(Thread.currentThread().getName());
+        int[] result = insertBatch(cities, cities.size());
+        return IntStream.range(0, cities.size())
+                .filter(i -> result[i] != 0)
+                .mapToObj(cities::get)
+                .collect(Collectors.toList());
+    }
 }
