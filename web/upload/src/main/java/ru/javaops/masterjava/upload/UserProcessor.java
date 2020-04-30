@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -113,6 +114,11 @@ public class UserProcessor {
 
         List<UserGroup> userGroupsToDB = new ArrayList<>();
 
+        Set<String> failedEmailRangeFirstEmail = failed.stream()
+                .filter(failedEmailsRange -> failedEmailsRange.emailsOrRange.contains("-"))
+                .map(failedEmailsRange -> failedEmailsRange.emailsOrRange.split("-")[0].replaceFirst("\\[", "").trim())
+                .collect(Collectors.toSet());
+
         for (int i = 0; i < allNewUserGroups.size(); i++) {
             UserGroup userGroup = allNewUserGroups.get(i);
             String email = allNewUserEmails.get(userGroup.getUserId());
@@ -124,12 +130,7 @@ public class UserProcessor {
                 continue;
             }
 
-            boolean isItFailed = failed.stream()
-                    .filter(failedEmailsRange -> failedEmailsRange.emailsOrRange.contains("-"))
-                    .map(failedEmailsRange -> failedEmailsRange.emailsOrRange.split("-")[0].replaceFirst("\\[", "").trim())
-                    .anyMatch(email::equals);
-
-            if (isItFailed) {
+            if (failedEmailRangeFirstEmail.contains(email)) {
                 i = i + chunkSize - 1;
                 continue;
             }
