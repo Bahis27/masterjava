@@ -1,27 +1,47 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Users</title>
+    <title>Send email</title>
 </head>
 <body>
-<table border="1" cellpadding="8" cellspacing="0">
-    <thead>
-    <tr>
-        <th>#</th>
-        <th>Full Name</th>
-        <th>Email</th>
-        <th>Flag</th>
-    </tr>
-    </thead>
-    <tbody>
-    <!--/*@thymesVar id="users" type="java.util.List<ru.javaops.masterjava.persist.model.User>"*/-->
-    <tr th:each="user,iter: ${users}">
-        <td th:text="${iter.count}"></td>
-        <td th:text="${user.fullName}"></td>
-        <td th:utext="${user.email}"></td>
-        <td th:text="${user.flag}"></td>
-    </tr>
-    </tbody>
-</table>
+<!--/*@thymesVar id="message" type="java.lang.String"*/-->
+<div th:if="${message != null}">
+    <div th:switch="${message.equals('Done')}">
+        <h2 th:case="true" th:text="${message}" style="color: green"></h2>
+        <h2 th:case="false" th:text="${message}" style="color: red"></h2>
+    </div>
+</div>
+<h2>Send email</h2>
+<form action="" method="post">
+    <table border="1" cellpadding="8" cellspacing="0">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Check</th>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Flag</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!--/*@thymesVar id="users" type="java.util.List<ru.javaops.masterjava.persist.model.User>"*/-->
+        <tr th:each="user,iter: ${users}">
+            <td th:text="${iter.count}"></td>
+            <td>
+                <input type="checkbox" name="checkBox" id="checkBox" th:value="${user.fullName + ' <' + user.email + '>'}" />
+            </td>
+            <td th:text="${user.fullName}"></td>
+            <td th:utext="${user.email}"></td>
+            <td th:text="${user.flag}"></td>
+        </tr>
+        </tbody>
+    </table>
+    <br/><br/>
+    <label for="subject">Subject:</label>
+    <input type="text" name="subject" id="subject" value="Subject"/><br/><br/>
+    <label for="messageBody">Message (required): </label>
+    <input type="text" name="messageBody" id="messageBody" value="Message" required/><br/><br/>
+    <input type="submit" value="Send message"/>
+</form>
 </body>
 </html>
