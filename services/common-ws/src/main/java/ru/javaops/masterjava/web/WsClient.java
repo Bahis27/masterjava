@@ -1,14 +1,17 @@
 package ru.javaops.masterjava.web;
 
-import com.typesafe.config.Config;
-import ru.javaops.masterjava.ExceptionType;
-import ru.javaops.masterjava.config.Configs;
+import java.net.URL;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Service;
-import java.net.URL;
-import java.util.Map;
+import javax.xml.ws.WebServiceFeature;
+
+import com.typesafe.config.Config;
+
+import ru.javaops.masterjava.ExceptionType;
+import ru.javaops.masterjava.config.Configs;
 
 public class WsClient<T> {
     private static Config HOSTS;
@@ -31,8 +34,8 @@ public class WsClient<T> {
     }
 
     //  Post is not thread-safe (http://stackoverflow.com/a/10601916/548473)
-    public T getPort() {
-        T port = service.getPort(serviceClass);
+    public T getPort(WebServiceFeature... features) {
+        T port = service.getPort(serviceClass, features);
         BindingProvider bp = (BindingProvider) port;
         Map<String, Object> requestContext = bp.getRequestContext();
         requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress);

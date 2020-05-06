@@ -1,8 +1,11 @@
 package ru.javaops.masterjava.service.mail;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import ru.javaops.masterjava.web.WebStateException;
 
+import javax.activation.DataHandler;
+import javax.activation.FileDataSource;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import java.net.MalformedURLException;
@@ -18,12 +21,16 @@ public class MailServiceClient {
         MailService mailService = service.getPort(MailService.class);
 
         String state = mailService.sendToGroup(ImmutableSet.of(new Addressee("masterjava@javaops.ru", null)), null,
-                "Group mail subject", "Group mail body");
+                "Group mail subject", "Group mail body",
+        ImmutableList.of(new Attachment("my_attach", new DataHandler(new FileDataSource("config_templates/version.html"))))
+        );
         System.out.println("Group mail state: " + state);
 
         GroupResult groupResult = mailService.sendBulk(ImmutableSet.of(
                 new Addressee("Мастер Java <masterjava@javaops.ru>"),
-                new Addressee("Bad Email <bad_email.ru>")), "Bulk mail subject", "Bulk mail body");
+                new Addressee("Bad Email <bad_email.ru>")), "Bulk mail subject", "Bulk mail body",
+                ImmutableList.of(new Attachment("version.html", new DataHandler(new FileDataSource("config_templates/version.html"))))
+        );
         System.out.println("\nBulk mail groupResult:\n" + groupResult);
     }
 }
