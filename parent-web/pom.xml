@@ -78,7 +78,6 @@
                     </deployables>
                 </configuration>
             </plugin>
-
         </plugins>
 
         <resources>
