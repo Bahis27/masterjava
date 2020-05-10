@@ -1,8 +1,8 @@
 package ru.javaops.masterjava.web;
 
-import com.typesafe.config.Config;
-import ru.javaops.masterjava.ExceptionType;
-import ru.javaops.masterjava.config.Configs;
+import java.net.URL;
+import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.Binding;
@@ -10,16 +10,53 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Service;
 import javax.xml.ws.WebServiceFeature;
 import javax.xml.ws.handler.Handler;
-import java.net.URL;
-import java.util.List;
-import java.util.Map;
+
+import org.slf4j.event.Level;
+
+import com.typesafe.config.Config;
+
+import ru.javaops.masterjava.ExceptionType;
+import ru.javaops.masterjava.config.Configs;
+import ru.javaops.masterjava.web.handler.SoapLoggingHandlers;
 
 public class WsClient<T> {
     private static Config HOSTS;
 
     private final Class<T> serviceClass;
     private final Service service;
-    private String endpointAddress;
+    private HostConfig hostConfig;
+
+    public static class HostConfig {
+        public final String endpoint;
+        public final Level serverDebugLevel;
+        public final String user;
+        public final String password;
+        public final String authHeader;
+        public final SoapLoggingHandlers.ClientHandler clientLoggingHandler;
+
+        public HostConfig(Config config, String endpointAddress) {
+            endpoint = config.getString("endpoint") + endpointAddress;
+            serverDebugLevel = config.getEnum(Level.class, "debug.server");
+
+            if (!config.getIsNull("user") && !config.getIsNull("password")) {
+                user = config.getString("user");
+                password = config.getString("password");
+                authHeader = AuthUtil.encodeBasicAuthHeader(user, password);
+            } else {
+                user = password = authHeader = null;
+            }
+            clientLoggingHandler = config.getIsNull("debug.client") ? null :
+                    new SoapLoggingHandlers.ClientHandler(config.getEnum(Level.class, "debug.client"));
+        }
+
+        public boolean hasAuthorization() {
+            return authHeader != null;
+        }
+
+        public boolean hasHandler() {
+            return clientLoggingHandler != null;
+        }
+    }
 
     static {
         HOSTS = Configs.getConfig("hosts.conf", "hosts").getConfig("mail");
@@ -30,8 +67,8 @@ public class WsClient<T> {
         this.service = Service.create(wsdlUrl, qname);
     }
 
-    public void init(String host, String endpointAddress) {
-        this.endpointAddress = HOSTS.getString("endpoint") + endpointAddress;
+    public void init(String endpointAddress) {
+        this.hostConfig = new HostConfig(HOSTS, endpointAddress);
     }
 
     //  Post is not thread-safe (http://stackoverflow.com/a/10601916/548473)
@@ -39,7 +76,13 @@ public class WsClient<T> {
         T port = service.getPort(serviceClass, features);
         BindingProvider bp = (BindingProvider) port;
         Map<String, Object> requestContext = bp.getRequestContext();
-        requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
+        requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, hostConfig.endpoint);
+        if (hostConfig.hasAuthorization()) {
+            setAuth(port, hostConfig.user, hostConfig.password);
+        }
+        if (hostConfig.hasHandler()) {
+            setHandler(port, hostConfig.clientLoggingHandler);
+        }
         return port;
     }
 
