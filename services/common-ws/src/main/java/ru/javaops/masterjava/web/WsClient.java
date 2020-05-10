@@ -26,6 +26,10 @@ public class WsClient<T> {
     private final Service service;
     private HostConfig hostConfig;
 
+    public HostConfig getHostConfig() {
+        return hostConfig;
+    }
+
     public static class HostConfig {
         public final String endpoint;
         public final Level serverDebugLevel;

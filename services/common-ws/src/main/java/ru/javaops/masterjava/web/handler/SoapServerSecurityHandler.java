@@ -11,7 +11,11 @@ import ru.javaops.masterjava.web.AuthUtil;
 
 public class SoapServerSecurityHandler extends SoapBaseHandler {
 
-    private String authHeader = AuthUtil.encodeBasicAuthHeader("user", "password");
+    private String authHeader;
+
+    public SoapServerSecurityHandler(String authHeader) {
+        this.authHeader = authHeader;
+    }
 
     @Override
     public boolean handleMessage(MessageHandlerContext context) {
