@@ -1,5 +1,6 @@
 package ru.javaops.masterjava.service.mail.rest;
 
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
@@ -12,6 +13,7 @@ public class MailRestConfig extends ResourceConfig {
         // Set Jersey log to SLF4J instead of JUL
         // http://stackoverflow.com/questions/4121722
         SLF4JBridgeHandler.install();
+        register(MultiPartFeature.class);
         packages("ru.javaops.masterjava.service.mail.rest");
     }
 }

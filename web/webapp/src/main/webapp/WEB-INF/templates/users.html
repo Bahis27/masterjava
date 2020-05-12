@@ -71,7 +71,7 @@
         }
 
         var param;
-        if (transport === "SOAP") {
+        if (transport === "SOAP" || transport === "REST") {
             // https://stackoverflow.com/a/5976031/548473
             var data = new FormData();
             data.append('users', users);
@@ -80,20 +80,20 @@
             var attach = $('#attach')[0].files[0];
             if (attach) data.append('attach', attach);
             param = {
-                url: "sendSoap",
+                url: (transport === "REST" ? "/mail/rest/send" : "sendSoap"),
                 data: data,
                 contentType: false,
                 processData: false
             };
-        } else if (transport === "REST" || transport === "JMS") {
+        } else if (transport === "JMS") {
             param = {
-                url: (transport === "REST" ? "/mail/rest/send" : "sendJms"),
+                url: "sendJms",
                 data: "users=" + users + "&subject=" + $("#subject").val() + "&body=" + $("#body").val(),
                 contentType: "application/x-www-form-urlencoded"
             };
         }
 
-//        https://stackoverflow.com/a/22213543/548473
+//      https://stackoverflow.com/a/22213543/548473
         $.post(param).done(function (result) {
             if (typeof result === "object") {
                 result = JSON.stringify(result)
