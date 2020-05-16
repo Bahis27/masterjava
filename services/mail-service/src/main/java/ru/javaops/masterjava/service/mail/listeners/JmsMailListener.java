@@ -1,6 +1,9 @@
 package ru.javaops.masterjava.service.mail.listeners;
 
+import java.io.Serializable;
+
 import lombok.extern.slf4j.Slf4j;
+import ru.javaops.masterjava.common.web.MailObject;
 
 import javax.jms.*;
 import javax.naming.InitialContext;
@@ -30,6 +33,11 @@ public class JmsMailListener implements ServletContextListener {
                 try {
                     while (!Thread.interrupted()) {
                         Message m = receiver.receive();
+                        if (m instanceof ObjectMessage) {
+                            ObjectMessage om = (ObjectMessage) m;
+                            MailObject mailObject = (MailObject) om.getObject();
+                            log.info("Received ObjectMessage '{}'", mailObject);
+                        }
                         if (m instanceof MapMessage) {
                             MapMessage mm = (MapMessage) m;
                             String users = mm.getString("users");

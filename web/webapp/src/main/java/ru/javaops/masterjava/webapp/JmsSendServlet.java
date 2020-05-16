@@ -1,6 +1,7 @@
 package ru.javaops.masterjava.webapp;
 
 import lombok.extern.slf4j.Slf4j;
+import ru.javaops.masterjava.common.web.MailObject;
 
 import javax.jms.*;
 import javax.naming.InitialContext;
@@ -10,6 +11,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
+
 import java.io.IOException;
 import java.lang.IllegalStateException;
 
@@ -52,10 +55,15 @@ public class JmsSendServlet extends HttpServlet {
             log.info("Start sending");
             req.setCharacterEncoding("UTF-8");
             resp.setCharacterEncoding("UTF-8");
-            String users = req.getParameter("users");
-            String subject = req.getParameter("subject");
-            String body = req.getParameter("body");
-            result = sendJms(users, subject, body);
+            Part filePart = req.getPart("attach");
+
+            MailObject mailObject = new MailObject(
+                    req.getParameter("users"),
+                    req.getParameter("subject"),
+                    req.getParameter("body"),
+                    filePart == null ? null : filePart.getSubmittedFileName(),
+                    filePart == null ? null : filePart.getInputStream());
+            result = sendJms(mailObject);
             log.info("Processing finished with result: {}", result);
         } catch (Exception e) {
             log.error("Processing failed", e);
@@ -64,13 +72,11 @@ public class JmsSendServlet extends HttpServlet {
         resp.getWriter().write(result);
     }
 
-    private synchronized String sendJms(String users, String subject, String body) throws JMSException {
-        MapMessage mapMessage = session.createMapMessage();
-        mapMessage.setString("users", users);
-        mapMessage.setString("subject", subject);
-        mapMessage.setString("body", body);
-
-        producer.send(mapMessage);
+    private synchronized String sendJms(MailObject mailObject) throws JMSException {
+        ObjectMessage objectMessage = session.createObjectMessage();
+        objectMessage.setObject(mailObject);
+        producer.send(objectMessage);
         return "Successfully sent JMS message";
     }
+
 }
