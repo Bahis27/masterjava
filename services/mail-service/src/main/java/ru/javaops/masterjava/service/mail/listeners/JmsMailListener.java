@@ -30,7 +30,13 @@ public class JmsMailListener implements ServletContextListener {
                 try {
                     while (!Thread.interrupted()) {
                         Message m = receiver.receive();
-                        // TODO implement mail sending
+                        if (m instanceof MapMessage) {
+                            MapMessage mm = (MapMessage) m;
+                            String users = mm.getString("users");
+                            String subject = mm.getString("subject");
+                            String body = mm.getString("body");
+                            log.info("Received MapMessage '{}': '{}' = '{}'", users, subject, body);
+                        }
                         if (m instanceof TextMessage) {
                             TextMessage tm = (TextMessage) m;
                             String text = tm.getText();
