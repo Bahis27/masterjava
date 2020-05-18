@@ -31,6 +31,11 @@ public class AkkaActivator {
                 new TypedProps<T>(typedClass, creator).withTimeout(new Timeout(Duration.create(20, TimeUnit.SECONDS))), name);
     }
 
+    public <T> ActorRef startActor(Props props) {
+        log.info("Start new AKKA actor");
+        return system.actorOf(props);
+    }
+
     public <T> ActorRef startActor(Class<T> actorClass, String name) {
         log.info("Start AKKA actor: {}", name);
         return system.actorOf(Props.create(actorClass), name);
